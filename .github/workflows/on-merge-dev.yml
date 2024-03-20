@@ -1,18 +1,13 @@
-name: Deployment
-
+name: Upload to S3
 on:
   pull_request:
     branches:
       - main
-
 jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
       - uses: actions/checkout@master
-
-      - name: Upload to S3
       - uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
