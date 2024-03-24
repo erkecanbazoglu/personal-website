@@ -2,7 +2,7 @@
 
 ## Overview
 
-Personal Website built with Vanilla JS.
+Personal Website built with HTML and CSS.
 
 ## Author
 
