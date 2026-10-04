@@ -1,5 +1,5 @@
-# Test library
-my-library/
+# macOS Finder metadata
+.DS_Store
 
 # Node modules
 node_modules/
