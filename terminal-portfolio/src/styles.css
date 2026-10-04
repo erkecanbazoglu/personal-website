@@ -103,7 +103,8 @@ input {
 
 .terminal[data-window-state="minimized"] {
   opacity: 0;
-  transform: translate(10dvw, calc(100dvh - 100% - 22px)) scale(0.07);
+  transform: translate(var(--minimize-x), var(--minimize-y)) scale(var(--minimize-scale));
+  transition: transform var(--window-transition) cubic-bezier(0.19, 1, 0.22, 1), opacity 100ms ease 260ms;
 }
 
 .terminal[data-expanded="true"] {
@@ -241,12 +242,12 @@ input {
 .terminal-dock {
   position: fixed;
   z-index: 5;
-  inset-inline: 0;
-  bottom: 0;
+  inset-inline: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
   display: flex;
   padding: 6px 6px max(6px, env(safe-area-inset-bottom));
   border: 1px solid var(--dock-border);
-  border-radius: 18px 18px 0 0;
+  border-radius: 18px;
   background: var(--dock-background);
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);

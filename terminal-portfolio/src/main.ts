@@ -162,9 +162,33 @@ const finishWindowTransition = (callback: () => void) => {
   );
 };
 
+const prepareMinimizeAnimation = () => {
+  terminalDock.hidden = false;
+  restoreButton.disabled = true;
+
+  const terminalBounds = terminal.getBoundingClientRect();
+  const dockAppBounds = restoreButton.getBoundingClientRect();
+  const terminalCenter = terminalBounds.left + terminalBounds.width / 2;
+  const dockAppCenter = dockAppBounds.left + dockAppBounds.width / 2;
+
+  terminal.style.setProperty(
+    "--minimize-x",
+    `${dockAppCenter - terminalCenter}px`,
+  );
+  terminal.style.setProperty(
+    "--minimize-y",
+    `${dockAppBounds.bottom - terminalBounds.bottom}px`,
+  );
+  terminal.style.setProperty(
+    "--minimize-scale",
+    String(dockAppBounds.width / terminalBounds.width),
+  );
+};
+
 const hideTerminal = (nextState: Exclude<WindowState, "open">) => {
   if (windowState !== "open" || windowTransition !== undefined) return;
 
+  if (nextState === "minimized") prepareMinimizeAnimation();
   terminal.inert = true;
   terminal.setAttribute("aria-hidden", "true");
   terminal.dataset.windowState = nextState;
@@ -178,6 +202,7 @@ const hideTerminal = (nextState: Exclude<WindowState, "open">) => {
       nextState === "closed" ? "Restore terminal" : "Restore minimized terminal",
     );
     terminalDock.hidden = false;
+    restoreButton.disabled = false;
     restoreButton.focus();
   });
 };
@@ -359,6 +384,9 @@ const resetTerminal = () => {
   terminal.dataset.expanded = "false";
   expandButton.setAttribute("aria-pressed", "false");
   expandButton.setAttribute("aria-label", "Expand terminal");
+  terminal.style.removeProperty("--minimize-x");
+  terminal.style.removeProperty("--minimize-y");
+  terminal.style.removeProperty("--minimize-scale");
   output.replaceChildren();
   updatePrompt();
   updateRoute();
