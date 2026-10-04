@@ -18,9 +18,16 @@ type Link = {
 
 type Node = Directory | File | Link;
 
-const directory = (children: Record<string, Node>): Directory => ({ type: "directory", children });
+const directory = (children: Record<string, Node>): Directory => ({
+  type: "directory",
+  children,
+});
 const file = (content: string): File => ({ type: "file", content });
-const link = (label: string, url: string): Link => ({ type: "link", label, url });
+const link = (label: string, url: string): Link => ({
+  type: "link",
+  label,
+  url,
+});
 
 const filesystem = directory({
   "README.md": file(`# erke canbazoglu
@@ -33,18 +40,33 @@ currently working in private-markets fintech.
 
 use \`ls\` to explore, or \`help\` for commands.`),
   about: directory({
-    "me.md": file("Software engineer focused on thoughtful, reliable product experiences."),
-    "now.md": file("Building products for private markets fintech and enjoying a good coffee."),
+    "me.md": file(
+      "Software engineer focused on thoughtful, reliable product experiences.",
+    ),
+    "now.md": file(
+      "Building products for private markets fintech and enjoying a good coffee.",
+    ),
   }),
   experience: directory({
     titanbay: directory({
-      "README.md": file("# Titanbay\n\nBuilding technology for private-market investing."),
+      "README.md": file(
+        "# Titanbay\n\nBuilding technology for private-market investing.",
+      ),
     }),
   }),
   projects: directory({
-    manjo: link("Food-ordering social marketplace for university students.", "https://manjoapp.com/"),
-    omnifood: link("Subscription meal-delivery landing page.", "https://erkecanbazoglu.github.io/omnifood/"),
-    spoilage: link("Data visualisation for spoilage analysis.", "https://front-end-exercise-two.vercel.app/"),
+    manjo: link(
+      "Food-ordering social marketplace for university students.",
+      "https://manjoapp.com/",
+    ),
+    omnifood: link(
+      "Subscription meal-delivery landing page.",
+      "https://erkecanbazoglu.github.io/omnifood/",
+    ),
+    spoilage: link(
+      "Data visualisation for spoilage analysis.",
+      "https://front-end-exercise-two.vercel.app/",
+    ),
   }),
   skills: directory({
     languages: file("Node.js, TypeScript, Go, Python, SQL"),
@@ -56,11 +78,19 @@ use \`ls\` to explore, or \`help\` for commands.`),
     "koc-university.md": file("Koc University"),
   }),
   links: directory({
-    github: link("github.com/erkecanbazoglu", "https://github.com/erkecanbazoglu"),
-    linkedin: link("linkedin.com/in/erkecanbazoglu", "https://www.linkedin.com/in/erkecanbazoglu/"),
+    github: link(
+      "github.com/erkecanbazoglu",
+      "https://github.com/erkecanbazoglu",
+    ),
+    linkedin: link(
+      "linkedin.com/in/erkecanbazoglu",
+      "https://www.linkedin.com/in/erkecanbazoglu/",
+    ),
     email: link("erkecanbazoglu@gmail.com", "mailto:erkecanbazoglu@gmail.com"),
   }),
-  ".coffee": file("ERROR: dependency required for successful compilation.\nrecommended dosage: 2"),
+  ".coffee": file(
+    "ERROR: dependency required for successful compilation.\nrecommended dosage: 2",
+  ),
   ".secrets": file("permission denied.\nalso, this is javascript."),
 });
 
@@ -77,7 +107,8 @@ const form = document.querySelector<HTMLFormElement>("#command-form");
 const input = document.querySelector<HTMLInputElement>("#command-input");
 const promptPath = document.querySelector<HTMLElement>("#prompt-path");
 const windowPath = document.querySelector<HTMLElement>("#window-path");
-const themeButtons = document.querySelectorAll<HTMLButtonElement>("[data-theme]");
+const themeButtons =
+  document.querySelectorAll<HTMLButtonElement>("[data-theme]");
 
 if (!output || !form || !input || !promptPath || !windowPath) {
   throw new Error("Terminal could not be initialised.");
@@ -97,7 +128,8 @@ const setTheme = (theme: Theme, persist = false) => {
   if (persist) localStorage.setItem("portfolio-theme", theme);
 };
 
-const pathLabel = () => (currentPath.length ? `~/${currentPath.join("/")}` : "~");
+const pathLabel = () =>
+  currentPath.length ? `~/${currentPath.join("/")}` : "~";
 
 const updatePrompt = () => {
   const path = pathLabel();
@@ -123,7 +155,8 @@ const printCommand = (command: string) => {
 };
 
 const resolvePath = (value: string) => {
-  const absolute = value.startsWith("/") || value === "~" || value.startsWith("~/");
+  const absolute =
+    value.startsWith("/") || value === "~" || value.startsWith("~/");
   const parts = value.replace(/^~\/?/, "").split("/");
   const path = absolute ? [] : [...currentPath];
 
@@ -151,7 +184,12 @@ const renderListing = (name: string, node: Node) => {
   item.type = "button";
   item.className = `listing-item ${node.type}`;
   item.textContent = node.type === "directory" ? `${name}/` : name;
-  item.dataset.command = node.type === "directory" ? `cd ${name}` : node.type === "link" ? `open ${name}` : `cat ${name}`;
+  item.dataset.command =
+    node.type === "directory"
+      ? `cd ${name}`
+      : node.type === "link"
+        ? `open ${name}`
+        : `cat ${name}`;
   return item;
 };
 
@@ -190,7 +228,8 @@ const changeDirectory = (target?: string) => {
 };
 
 const showHelp = () => {
-  print(`available commands:
+  print(
+    `available commands:
   help          show this message
   ls [-a] [dir] list files and directories
   cd <dir>      change directory
@@ -202,17 +241,22 @@ const showHelp = () => {
   history       show previous commands
   neofetch      show a portfolio system summary
 
-aliases: experience, projects, skills, education, contact`, "preformatted");
+aliases: experience, projects, skills, education, contact`,
+    "preformatted",
+  );
 };
 
 const showNeofetch = () => {
-  print(`              erke@portfolio
+  print(
+    `              erke@portfolio
      ______   -------------------
     / ____/   Based in: Bournemouth
    / __/      Role: Software Engineer
-   / /___      Stack: TypeScript / Web / Cloud
-  /_____/      Languages: TR / EN / ES
-              Current: Private-markets fintech`, "neofetch");
+   / /___     Stack: TypeScript / Web / Cloud
+  /_____/     Languages: TR / EN / ES
+              Current: Private-markets fintech`,
+    "neofetch",
+  );
 };
 
 const showWelcome = () => {
@@ -243,7 +287,10 @@ const runCommand = (rawCommand: string, record = true) => {
         break;
       case "ls": {
         const includeHidden = args[0] === "-a";
-        list(args.find((arg) => arg !== "-a"), includeHidden);
+        list(
+          args.find((arg) => arg !== "-a"),
+          includeHidden,
+        );
         break;
       }
       case "cd":
@@ -289,7 +336,9 @@ const runCommand = (rawCommand: string, record = true) => {
         showWelcome();
         break;
       case "history":
-        commandHistory.forEach((entry, index) => print(`${index + 1}  ${entry}`));
+        commandHistory.forEach((entry, index) =>
+          print(`${index + 1}  ${entry}`),
+        );
         break;
       case "neofetch":
         showNeofetch();
@@ -304,7 +353,19 @@ const runCommand = (rawCommand: string, record = true) => {
 const autocomplete = () => {
   const value = input.value;
   const [first, ...rest] = value.split(/\s+/);
-  const commands = ["help", "ls", "cd", "cat", "pwd", "open", "whoami", "clear", "history", "neofetch", ...Object.keys(aliases)];
+  const commands = [
+    "help",
+    "ls",
+    "cd",
+    "cat",
+    "pwd",
+    "open",
+    "whoami",
+    "clear",
+    "history",
+    "neofetch",
+    ...Object.keys(aliases),
+  ];
 
   if (!rest.length) {
     const match = commands.find((command) => command.startsWith(first));
@@ -316,17 +377,23 @@ const autocomplete = () => {
 
   const target = rest.at(-1) || "";
   const lastSlash = target.lastIndexOf("/");
-  const directoryPrefix = lastSlash === -1 ? "" : target.slice(0, lastSlash + 1);
+  const directoryPrefix =
+    lastSlash === -1 ? "" : target.slice(0, lastSlash + 1);
   const partialName = target.slice(lastSlash + 1);
-  const directoryTarget = directoryPrefix ? directoryPrefix.slice(0, -1) || "/" : ".";
+  const directoryTarget = directoryPrefix
+    ? directoryPrefix.slice(0, -1) || "/"
+    : ".";
   const resolved = resolvePath(directoryTarget);
   if (!resolved || resolved.node.type !== "directory") return;
 
-  const expectedType = first === "cd" ? "directory" : first === "cat" ? "file" : "link";
+  const expectedType =
+    first === "cd" ? "directory" : first === "cat" ? "file" : "link";
   const match = Object.entries(resolved.node.children).find(
-    ([entry, node]) => node.type === expectedType && entry.startsWith(partialName),
+    ([entry, node]) =>
+      node.type === expectedType && entry.startsWith(partialName),
   )?.[0];
-  if (match) input.value = `${first} ${[...rest.slice(0, -1), `${directoryPrefix}${match}`].join(" ")}`;
+  if (match)
+    input.value = `${first} ${[...rest.slice(0, -1), `${directoryPrefix}${match}`].join(" ")}`;
 };
 
 form.addEventListener("submit", (event) => {
@@ -353,7 +420,8 @@ input.addEventListener("keydown", (event) => {
 document.addEventListener("click", (event) => {
   if (window.getSelection()?.toString()) return;
   const target = event.target as HTMLElement;
-  const command = target.closest<HTMLElement>("[data-command]")?.dataset.command;
+  const command =
+    target.closest<HTMLElement>("[data-command]")?.dataset.command;
   if (command) runCommand(command);
   input.focus();
 });
@@ -380,5 +448,7 @@ if (initialRoute) {
   if (resolved?.node.type === "directory") currentPath = resolved.path;
 }
 updatePrompt();
-setTheme(localStorage.getItem("portfolio-theme") === "light" ? "light" : "dark");
+setTheme(
+  localStorage.getItem("portfolio-theme") === "light" ? "light" : "dark",
+);
 showWelcome();
