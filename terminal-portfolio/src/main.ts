@@ -107,10 +107,28 @@ const form = document.querySelector<HTMLFormElement>("#command-form");
 const input = document.querySelector<HTMLInputElement>("#command-input");
 const promptPath = document.querySelector<HTMLElement>("#prompt-path");
 const windowPath = document.querySelector<HTMLElement>("#window-path");
+const terminal = document.querySelector<HTMLElement>(".terminal");
+const terminalDock = document.querySelector<HTMLElement>("#terminal-dock");
+const restoreButton = document.querySelector<HTMLButtonElement>(
+  "#terminal-restore",
+);
+const expandButton = document.querySelector<HTMLButtonElement>(
+  '[data-window-action="expand"]',
+);
 const themeButtons =
   document.querySelectorAll<HTMLButtonElement>("[data-theme]");
 
-if (!output || !form || !input || !promptPath || !windowPath) {
+if (
+  !output ||
+  !form ||
+  !input ||
+  !promptPath ||
+  !windowPath ||
+  !terminal ||
+  !terminalDock ||
+  !restoreButton ||
+  !expandButton
+) {
   throw new Error("Terminal could not be initialised.");
 }
 
@@ -119,6 +137,12 @@ let commandHistory: string[] = [];
 let historyIndex = 0;
 
 type Theme = "dark" | "light";
+type WindowState = "open" | "closed" | "minimized";
+
+const windowTransitionDuration = 360;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+let windowState: WindowState = "open";
+let windowTransition: number | undefined;
 
 const setTheme = (theme: Theme, persist = false) => {
   document.documentElement.dataset.theme = theme;
@@ -126,6 +150,92 @@ const setTheme = (theme: Theme, persist = false) => {
     button.setAttribute("aria-pressed", String(button.dataset.theme === theme));
   });
   if (persist) localStorage.setItem("portfolio-theme", theme);
+};
+
+const finishWindowTransition = (callback: () => void) => {
+  windowTransition = window.setTimeout(
+    () => {
+      windowTransition = undefined;
+      callback();
+    },
+    reducedMotion.matches ? 0 : windowTransitionDuration,
+  );
+};
+
+const prepareMinimizeAnimation = () => {
+  terminalDock.hidden = false;
+  restoreButton.disabled = true;
+
+  const terminalBounds = terminal.getBoundingClientRect();
+  const dockAppBounds = restoreButton.getBoundingClientRect();
+  const terminalCenter = terminalBounds.left + terminalBounds.width / 2;
+  const dockAppCenter = dockAppBounds.left + dockAppBounds.width / 2;
+
+  terminal.style.setProperty(
+    "--minimize-x",
+    `${dockAppCenter - terminalCenter}px`,
+  );
+  terminal.style.setProperty(
+    "--minimize-y",
+    `${dockAppBounds.bottom - terminalBounds.bottom}px`,
+  );
+  terminal.style.setProperty(
+    "--minimize-scale",
+    String(dockAppBounds.width / terminalBounds.width),
+  );
+};
+
+const hideTerminal = (nextState: Exclude<WindowState, "open">) => {
+  if (windowState !== "open" || windowTransition !== undefined) return;
+
+  if (nextState === "minimized") prepareMinimizeAnimation();
+  terminal.inert = true;
+  terminal.setAttribute("aria-hidden", "true");
+  terminal.dataset.windowState = nextState;
+
+  finishWindowTransition(() => {
+    windowState = nextState;
+    if (nextState === "closed") resetTerminal();
+    terminal.hidden = true;
+    restoreButton.setAttribute(
+      "aria-label",
+      nextState === "closed" ? "Restore terminal" : "Restore minimized terminal",
+    );
+    terminalDock.hidden = false;
+    restoreButton.disabled = false;
+    restoreButton.focus();
+  });
+};
+
+const restoreTerminal = () => {
+  if (windowState === "open" || windowTransition !== undefined) return;
+
+  terminal.hidden = false;
+  restoreButton.disabled = true;
+
+  requestAnimationFrame(() => {
+    terminal.dataset.windowState = "open";
+    finishWindowTransition(() => {
+      windowState = "open";
+      terminal.inert = false;
+      terminal.removeAttribute("aria-hidden");
+      restoreButton.disabled = false;
+      terminalDock.hidden = true;
+      input.focus({ preventScroll: true });
+    });
+  });
+};
+
+const toggleExpandedTerminal = () => {
+  if (windowState !== "open" || windowTransition !== undefined) return;
+
+  const expanded = terminal.dataset.expanded === "true";
+  terminal.dataset.expanded = String(!expanded);
+  expandButton.setAttribute("aria-pressed", String(!expanded));
+  expandButton.setAttribute(
+    "aria-label",
+    expanded ? "Expand terminal" : "Restore terminal size",
+  );
 };
 
 const pathLabel = () =>
@@ -264,6 +374,23 @@ const showWelcome = () => {
   printCommand("cat ~/README.md");
   if (readme?.type === "file") print(readme.content, "preformatted");
   print("type 'help' to explore", "muted");
+};
+
+const resetTerminal = () => {
+  currentPath = [];
+  commandHistory = [];
+  historyIndex = 0;
+  input.value = "";
+  terminal.dataset.expanded = "false";
+  expandButton.setAttribute("aria-pressed", "false");
+  expandButton.setAttribute("aria-label", "Expand terminal");
+  terminal.style.removeProperty("--minimize-x");
+  terminal.style.removeProperty("--minimize-y");
+  terminal.style.removeProperty("--minimize-scale");
+  output.replaceChildren();
+  updatePrompt();
+  updateRoute();
+  showWelcome();
 };
 
 const runCommand = (rawCommand: string, record = true) => {
@@ -420,11 +547,34 @@ input.addEventListener("keydown", (event) => {
 document.addEventListener("click", (event) => {
   if (window.getSelection()?.toString()) return;
   const target = event.target as HTMLElement;
+  if (target.closest("[data-window-action], #terminal-dock, [data-theme]")) {
+    return;
+  }
   const command =
     target.closest<HTMLElement>("[data-command]")?.dataset.command;
   if (command) runCommand(command);
   input.focus();
 });
+
+document
+  .querySelectorAll<HTMLButtonElement>("[data-window-action]")
+  .forEach((button) => {
+    button.addEventListener("click", () => {
+      switch (button.dataset.windowAction) {
+        case "close":
+          hideTerminal("closed");
+          break;
+        case "minimize":
+          hideTerminal("minimized");
+          break;
+        case "expand":
+          toggleExpandedTerminal();
+          break;
+      }
+    });
+  });
+
+restoreButton.addEventListener("click", restoreTerminal);
 
 themeButtons.forEach((button) => {
   button.addEventListener("click", () => {

@@ -19,10 +19,12 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.7 15.4A8.5 8.5 0 0 1 8.6 3.3 8.5 8.5 0 1 0 20.7 15.4Z"></path></svg>
         </button>
       </div>
-      <section class="terminal" aria-label="Erke Canbazoglu's interactive portfolio terminal">
+      <section class="terminal" data-window-state="open" data-expanded="false" aria-label="Erke Canbazoglu's interactive portfolio terminal">
         <header class="terminal-bar">
-          <div class="window-controls" aria-hidden="true">
-            <span></span><span></span><span></span>
+          <div class="window-controls" role="group" aria-label="Terminal window controls">
+            <button class="window-control close" type="button" data-window-action="close" aria-label="Close terminal"></button>
+            <button class="window-control minimize" type="button" data-window-action="minimize" aria-label="Minimize terminal"></button>
+            <button class="window-control expand" type="button" data-window-action="expand" aria-label="Expand terminal" aria-pressed="false"></button>
           </div>
           <p>erke@portfolio: <span id="window-path">~</span></p>
         </header>
@@ -41,6 +43,11 @@
           />
         </form>
       </section>
+      <nav id="terminal-dock" class="terminal-dock" aria-label="Terminal dock" hidden>
+        <button id="terminal-restore" class="terminal-dock-app" type="button" aria-label="Restore terminal">
+          <span class="terminal-dock-icon" aria-hidden="true"></span>
+        </button>
+      </nav>
       <p class="hint">Try <button type="button" data-command="help">help</button>, <button type="button" data-command="neofetch">neofetch</button>, or <button type="button" data-command="ls">ls</button>.</p>
       <nav class="social-strip" aria-label="Contact links">
         <a class="social-link" href="https://github.com/erkecanbazoglu" target="_blank" rel="noreferrer" aria-label="GitHub profile">
