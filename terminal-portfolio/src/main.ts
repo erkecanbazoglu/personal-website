@@ -1,5 +1,3 @@
-import "./styles.css";
-
 type Directory = {
   type: "directory";
   children: Record<string, Node>;
