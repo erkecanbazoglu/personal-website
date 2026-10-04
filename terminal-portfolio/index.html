@@ -43,7 +43,11 @@
           />
         </form>
       </section>
-      <button id="terminal-restore" class="terminal-restore" type="button" hidden>Restore terminal</button>
+      <nav id="terminal-dock" class="terminal-dock" aria-label="Terminal dock" hidden>
+        <button id="terminal-restore" class="terminal-dock-app" type="button" aria-label="Restore terminal">
+          <span class="terminal-dock-icon" aria-hidden="true"></span>
+        </button>
+      </nav>
       <p class="hint">Try <button type="button" data-command="help">help</button>, <button type="button" data-command="neofetch">neofetch</button>, or <button type="button" data-command="ls">ls</button>.</p>
       <nav class="social-strip" aria-label="Contact links">
         <a class="social-link" href="https://github.com/erkecanbazoglu" target="_blank" rel="noreferrer" aria-label="GitHub profile">

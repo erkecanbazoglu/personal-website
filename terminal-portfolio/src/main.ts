@@ -108,6 +108,7 @@ const input = document.querySelector<HTMLInputElement>("#command-input");
 const promptPath = document.querySelector<HTMLElement>("#prompt-path");
 const windowPath = document.querySelector<HTMLElement>("#window-path");
 const terminal = document.querySelector<HTMLElement>(".terminal");
+const terminalDock = document.querySelector<HTMLElement>("#terminal-dock");
 const restoreButton = document.querySelector<HTMLButtonElement>(
   "#terminal-restore",
 );
@@ -124,6 +125,7 @@ if (
   !promptPath ||
   !windowPath ||
   !terminal ||
+  !terminalDock ||
   !restoreButton ||
   !expandButton
 ) {
@@ -169,14 +171,13 @@ const hideTerminal = (nextState: Exclude<WindowState, "open">) => {
 
   finishWindowTransition(() => {
     windowState = nextState;
+    if (nextState === "closed") resetTerminal();
     terminal.hidden = true;
-    restoreButton.textContent =
-      nextState === "closed" ? "Restore terminal" : "Open terminal";
     restoreButton.setAttribute(
       "aria-label",
       nextState === "closed" ? "Restore terminal" : "Restore minimized terminal",
     );
-    restoreButton.hidden = false;
+    terminalDock.hidden = false;
     restoreButton.focus();
   });
 };
@@ -194,7 +195,7 @@ const restoreTerminal = () => {
       terminal.inert = false;
       terminal.removeAttribute("aria-hidden");
       restoreButton.disabled = false;
-      restoreButton.hidden = true;
+      terminalDock.hidden = true;
       input.focus({ preventScroll: true });
     });
   });
@@ -348,6 +349,20 @@ const showWelcome = () => {
   printCommand("cat ~/README.md");
   if (readme?.type === "file") print(readme.content, "preformatted");
   print("type 'help' to explore", "muted");
+};
+
+const resetTerminal = () => {
+  currentPath = [];
+  commandHistory = [];
+  historyIndex = 0;
+  input.value = "";
+  terminal.dataset.expanded = "false";
+  expandButton.setAttribute("aria-pressed", "false");
+  expandButton.setAttribute("aria-label", "Expand terminal");
+  output.replaceChildren();
+  updatePrompt();
+  updateRoute();
+  showWelcome();
 };
 
 const runCommand = (rawCommand: string, record = true) => {
@@ -504,7 +519,7 @@ input.addEventListener("keydown", (event) => {
 document.addEventListener("click", (event) => {
   if (window.getSelection()?.toString()) return;
   const target = event.target as HTMLElement;
-  if (target.closest("[data-window-action], #terminal-restore, [data-theme]")) {
+  if (target.closest("[data-window-action], #terminal-dock, [data-theme]")) {
     return;
   }
   const command =
