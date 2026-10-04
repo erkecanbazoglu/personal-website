@@ -26,7 +26,7 @@ jobs:
         run: npm run build
 
       - name: Install the AWS CLI
-        run: sudo apt-get install awscli
+        run: pipx install awscli
 
       - name: Upload to S3
         run: |
