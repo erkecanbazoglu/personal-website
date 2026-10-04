@@ -1,8 +1,13 @@
 # Personal Website
 
-## Overview
+## Active Site
 
-Personal Website built with HTML and CSS.
+The deployed portfolio is the Vite application in `terminal-portfolio/`.
+Pushing to `main` builds it and syncs `terminal-portfolio/dist/` to the
+`erkecanbazoglu.com` S3 bucket.
+
+The previous HTML/CSS portfolio, including its randomly animated tile reveal,
+is preserved in `legacy-grid-portfolio/`.
 
 ## Author
 
